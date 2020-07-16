@@ -85,6 +85,7 @@ class Builder(context: Context) {
 
     //原来缓存日期的意思是几天后从缓存目录移到日志目录 默认 0 即可
     //如果想让文件保留多少天 用 [setMaxAliveTime] 方法即可
+    //大于 0  的时候 默认会放在缓存的位置上 [cachePath]
     fun setCacheDays(days: Int): Builder {
         if (days < 0) {
             this.cacheDays = 0
