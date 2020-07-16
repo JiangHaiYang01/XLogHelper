@@ -11,16 +11,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-
-        close.setOnClickListener {
-            XLogHelper.close()
-        }
-
         add.setOnClickListener {
-            XLogHelper.i("tag", "add log %s  你还啊  %s", "12q12", 123)
 
-            for (i in 1..10000) {
-                XLogHelper.i("我他妈心态崩了啊 %s", i)
+            for (i in 1..100000) {
+                XLogHelper.i("======================> %s", i)
             }
         }
 

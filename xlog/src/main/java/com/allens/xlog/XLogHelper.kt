@@ -2,7 +2,6 @@ package com.allens.xlog
 
 import android.content.Context
 import com.tencent.mars.xlog.Log
-import com.tencent.mars.xlog.Xlog
 
 object XLogHelper {
 
@@ -11,8 +10,6 @@ object XLogHelper {
         System.loadLibrary("c++_shared")
         System.loadLibrary("marsxlog")
     }
-
-
 
 
     fun create(context: Context): Builder {
@@ -26,13 +23,8 @@ object XLogHelper {
 
 
     fun i(format: String, vararg obj: Any?) {
-        Log.i( Builder.tag, format, *obj)
+        Log.i(Builder.tag, format, *obj)
     }
 
-
-
-    fun close() {
-        Log.appenderClose()
-    }
 
 }

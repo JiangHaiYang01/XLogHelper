@@ -18,8 +18,9 @@ class Builder(context: Context) {
     //是否打印控制台日志
     private var consoleLogOpen = true
 
-    //设置是否将打印错误日志记录到单独的文件中
-    private var errorLogOpen = true
+
+    //是否每天一个日志文件
+    private var oneFileEveryday = true
 
     //默认的位置
     private val defCachePath = context.getExternalFilesDir(null)?.path + "/mmap"
@@ -39,6 +40,7 @@ class Builder(context: Context) {
     //最大文件大小
     //默认情况下，所有日志每天都写入一个文件。可以通过更改max_file_size将日志分割为多个文件。
     //单个日志文件的最大字节大小，默认为0，表示不分割
+    // 最大 当文件不能超过 10M
     private var maxFileSize = 0L
 
     //日志级别
@@ -48,7 +50,11 @@ class Builder(context: Context) {
     //通过 python gen_key.py 获取到的公钥
     private var pubKey = ""
 
+    //单个文件最大保留时间 最小 1天 默认时间 10天
+    private var maxAliveTime = 10
+
     //缓存的天数  一般情况下填0即可。非0表示会在 _cachedir 目录下存放几天的日志。
+    //原来缓存日期的意思是几天后从缓存目录移到日志目录
     private var cacheDays = 0
 
     fun setCachePath(cachePath: String): Builder {
@@ -77,8 +83,14 @@ class Builder(context: Context) {
         return this
     }
 
+    //原来缓存日期的意思是几天后从缓存目录移到日志目录 默认 0 即可
+    //如果想让文件保留多少天 用 [setMaxAliveTime] 方法即可
     fun setCacheDays(days: Int): Builder {
-        this.cacheDays = days
+        if (days < 0) {
+            this.cacheDays = 0
+        } else {
+            this.cacheDays = days
+        }
         return this
     }
 
@@ -97,18 +109,54 @@ class Builder(context: Context) {
         return this
     }
 
-    fun setErrLogOpen(errorLogOpen: Boolean): Builder {
-        this.errorLogOpen = errorLogOpen
-        return this
-    }
 
     fun setTag(logTag: String): Builder {
         tag = logTag
         return this
     }
 
-    fun setMaxFileSize(maxFileSize: Long): Builder {
-        this.maxFileSize = maxFileSize
+
+    /**
+     * [isOpen]  true   设置每天一个日志文件
+     *           false  那么  [setMaxFileSize] 生效
+     */
+    fun setOneFileEveryday(isOpen: Boolean): Builder {
+        this.oneFileEveryday = isOpen
+        return this
+    }
+
+    fun setMaxFileSize(maxFileSize: Float): Builder {
+        when {
+            maxFileSize < 0 -> {
+                this.maxFileSize = 0L
+            }
+            maxFileSize > 10 -> {
+                this.maxFileSize = (10 * 1024 * 1024).toLong()
+            }
+            else -> {
+                this.maxFileSize = (maxFileSize * 1024 * 1024).toLong()
+            }
+        }
+        return this
+    }
+
+    /**
+     * [day] 设置单个文件的过期时间 默认10天 在程序启动30S 以后会检查过期文件
+     *       过期时间依据 当前系统时间 - 文件最后修改时间计算
+     *       默认 单个文件保存 10天
+     */
+    fun setMaxAliveTime(day: Int): Builder {
+        when {
+            day < 0 -> {
+                this.maxAliveTime = 0
+            }
+            day > 10 -> {
+                this.maxAliveTime = 10
+            }
+            else -> {
+                this.maxAliveTime = day
+            }
+        }
         return this
     }
 
@@ -131,7 +179,7 @@ class Builder(context: Context) {
         android.util.Log.i(
             tag,
             "info" + "\n"
-                    +"level:" + logLevel.level + "\n"
+                    + "level:" + logLevel.level + "\n"
                     + "model:" + model.model + "\n"
                     + "cachePath:" + cachePath + "\n"
                     + "logPath:" + logPath + "\n"
@@ -139,11 +187,20 @@ class Builder(context: Context) {
                     + "cacheDays:" + cacheDays + "\n"
                     + "pubKey:" + pubKey + "\n"
                     + "consoleLogOpen:" + consoleLogOpen + "\n"
-                    + "errorLogOpen:" + errorLogOpen + "\n"
                     + "maxFileSize:" + maxFileSize + "\n"
         )
 
         android.util.Log.i(tag, "Xlog=========================================<")
+        Xlog.setConsoleLogOpen(consoleLogOpen)
+        //每天一个日志文件
+        if (oneFileEveryday) {
+            Xlog.setMaxFileSize(0)
+        } else {
+            Xlog.setMaxFileSize(maxFileSize)
+        }
+
+        Xlog.setMaxAliveTime((maxAliveTime * 24 * 60 * 60).toLong())
+
         Xlog.appenderOpen(
             logLevel.level,
             model.model,
@@ -153,9 +210,6 @@ class Builder(context: Context) {
             cacheDays,
             pubKey
         )
-        Xlog.setConsoleLogOpen(consoleLogOpen)
-//        Xlog.setErrLogOpen(errorLogOpen)
-        Xlog.setMaxFileSize(maxFileSize)
         Log.setLogImp(Xlog())
     }
 
