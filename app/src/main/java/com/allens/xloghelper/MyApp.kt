@@ -12,6 +12,7 @@ class MyApp :Application(){
         XLogHelper.create(this)
             .setModel(LogModel.Async)
             .setTag("TAG")
+            .setDebug(true)
             .setConsoleLogOpen(true)
             .setLogLevel(LogLevel.LEVEL_INFO)
             .setNamePreFix("log")

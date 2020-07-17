@@ -13,8 +13,14 @@ class MainActivity : AppCompatActivity() {
 
         add.setOnClickListener {
 
-            for (i in 1..20000) {
-                XLogHelper.i("======================> %s", i)
+            for (i in 1..10) {
+                XLogHelper.i("======================>i %s", i)
+            }
+            for (i in 1..10) {
+                XLogHelper.e("======================>e %s", i)
+            }
+            for (i in 1..10) {
+                XLogHelper.v("======================>v %s", i)
             }
         }
 

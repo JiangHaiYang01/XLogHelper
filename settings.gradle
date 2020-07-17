@@ -1,4 +1,3 @@
-include ':mars_xlog_sdk'
 include ':xlog'
 include ':app'
 rootProject.name = "XLogHelper"
