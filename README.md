@@ -2,6 +2,9 @@
 基于微信XLog的日志框架&&对于XLog的分析
 
 
+
+> 建议在 [个人博客](https://allens.icu/posts/60625924/#more) 中查看,阅读体验更佳
+
 # 前言
 
 之前写过一个 日志框架[LogHelper](https://github.com/JiangHaiYang01/LogHelper) ,是基于 Logger 开源库封装的，当时的因为项目本身的日志不是很多，完全可以使用，最近和其他公司合作，在一个新的项目上反馈，说在 大量log 的情况下会影响到手机主体功能的使用。从而让我对之前的日志行为做了一个深刻的反省
