@@ -40,7 +40,7 @@ class Builder(context: Context) {
     //最大文件大小
     //默认情况下，所有日志每天都写入一个文件。可以通过更改max_file_size将日志分割为多个文件。
     //单个日志文件的最大字节大小，默认为0，表示不分割
-    // 最大 当文件不能超过 10M
+    //最大 当文件不能超过 10M
     private var maxFileSize = 0L
 
     //日志级别
@@ -95,22 +95,27 @@ class Builder(context: Context) {
         return this
     }
 
+    //是否是debug 模式
     fun setDebug(debug: Boolean): Builder {
         this.debug = debug
         return this
     }
 
+    //日志级别
+    //debug 版本下建议把控制台日志打开，日志级别设为 Verbose 或者 Debug, release 版本建议把控制台日志关闭，日志级别使用 Info.
     fun setLogLevel(level: LogLevel): Builder {
         this.logLevel = level
         return this
     }
 
+    //是否打印控制台日志
     fun setConsoleLogOpen(consoleLogOpen: Boolean): Builder {
         this.consoleLogOpen = consoleLogOpen
         return this
     }
 
 
+    //设置日志打印的tag
     fun setTag(logTag: String): Builder {
         tag = logTag
         return this
@@ -126,6 +131,12 @@ class Builder(context: Context) {
         return this
     }
 
+    /**
+     * [maxFileSize] 单位是M
+     *  最大文件大小
+     *  默认情况下，所有日志每天都写入一个文件。可以通过更改max_file_size将日志分割为多个文件。
+     *  单个日志文件的最大字节大小，默认为0，表示不分割 最大 当文件不能超过 10M
+     */
     fun setMaxFileSize(maxFileSize: Float): Builder {
         when {
             maxFileSize < 0 -> {
@@ -179,16 +190,28 @@ class Builder(context: Context) {
         android.util.Log.i(tag, "Xlog=========================================>")
         android.util.Log.i(
             tag,
-            "info" + "\n"
-                    + "level:" + logLevel.level + "\n"
-                    + "model:" + model.model + "\n"
-                    + "cachePath:" + cachePath + "\n"
-                    + "logPath:" + logPath + "\n"
-                    + "namePreFix:" + namePreFix + "\n"
-                    + "cacheDays:" + cacheDays + "\n"
-                    + "pubKey:" + pubKey + "\n"
-                    + "consoleLogOpen:" + consoleLogOpen + "\n"
-                    + "maxFileSize:" + maxFileSize + "\n"
+            "日志配置信息\n\n"
+                    + "日志级别:" + logLevel + "\n"
+
+                    + "写入模式:" +
+                    if (model.model == LogModel.Sync.model) {
+                        "实时写入 不会加密"
+                    } else {
+                        "异步写入 会加密"
+                    } + "\n"
+
+                    + "mmap缓存位置:" + cachePath + "\n"
+                    + "实际保存的log位置:" + logPath + "\n"
+                    + "文件名称前缀:" + namePreFix + "\n"
+                    + "从缓存目录移到日志目录时间:" + cacheDays + "\n"
+                    + "公钥:" + pubKey + "\n"
+                    + "是否打印控制台日志:" + consoleLogOpen + "\n"
+                    + "单个日志文件最大:" +
+                    if (maxFileSize == 0L) {
+                        "一天一个"
+                    } else {
+                        "每个文件最大$maxFileSize"
+                    } + "\n"
         )
 
         android.util.Log.i(tag, "Xlog=========================================<")
